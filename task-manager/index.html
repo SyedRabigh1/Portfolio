@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Task Manager App - A modern task management application with drag-and-drop functionality">
+    <title>Task Manager App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Task Manager</h1>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="board">
+                    <i class="fas fa-columns"></i>
+                    <span>Board View</span>
+                </button>
+                <button class="nav-item" data-view="list">
+                    <i class="fas fa-list"></i>
+                    <span>List View</span>
+                </button>
+                <button class="nav-item" data-view="calendar">
+                    <i class="fas fa-calendar"></i>
+                    <span>Calendar View</span>
+                </button>
+            </nav>
+            <div class="sidebar-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalTasks">0</span>
+                    <span class="stat-label">Total Tasks</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="completedTasks">0</span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="pendingTasks">0</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="search-box">
+                        <input type="text" id="searchTasks" placeholder="Search tasks...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="view-options">
+                        <button id="sortBtn" class="btn icon-btn" title="Sort tasks">
+                            <i class="fas fa-sort"></i>
+                        </button>
+                        <button id="filterBtn" class="btn icon-btn" title="Filter tasks">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="addTaskBtn" class="btn primary">
+                    <i class="fas fa-plus"></i>
+                    Add Task
+                </button>
+            </header>
+
+            <div class="categories">
+                <button class="category active" data-filter="all">
+                    All Tasks
+                    <span class="task-count" id="allTasksCount">0</span>
+                </button>
+                <button class="category" data-filter="todo">
+                    To Do
+                    <span class="task-count" id="todoTasksCount">0</span>
+                </button>
+                <button class="category" data-filter="in-progress">
+                    In Progress
+                    <span class="task-count" id="in-progressTasksCount">0</span>
+                </button>
+                <button class="category" data-filter="completed">
+                    Completed
+                    <span class="task-count" id="completedTasksCount">0</span>
+                </button>
+            </div>
+
+            <!-- Board View -->
+            <div id="boardView" class="task-board">
+                <div class="task-column">
+                    <div class="column-header">
+                        <h3>To Do</h3>
+                        <span class="column-count" id="todoColumnCount">0</span>
+                    </div>
+                    <div class="task-list" data-status="todo"></div>
+                </div>
+                <div class="task-column">
+                    <div class="column-header">
+                        <h3>In Progress</h3>
+                        <span class="column-count" id="in-progressColumnCount">0</span>
+                    </div>
+                    <div class="task-list" data-status="in-progress"></div>
+                </div>
+                <div class="task-column">
+                    <div class="column-header">
+                        <h3>Completed</h3>
+                        <span class="column-count" id="completedColumnCount">0</span>
+                    </div>
+                    <div class="task-list" data-status="completed"></div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="listView" class="task-list-view hidden">
+                <div class="list-header">
+                    <div>Task</div>
+                    <div>Priority</div>
+                    <div>Status</div>
+                    <div>Due Date</div>
+                    <div>Actions</div>
+                </div>
+                <div id="listViewBody" class="list-body"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendarView" class="calendar-view hidden">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="btn icon-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 id="currentMonth">January 2024</h2>
+                    <button id="nextMonth" class="btn icon-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Task</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label for="title">Task Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="datetime-local" id="dueDate" name="dueDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <div class="tags-input">
+                        <input type="text" id="tags" placeholder="Add tags (press Enter)">
+                        <div class="tags-container"></div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="taskDetailsModal" class="modal">
+        <div class="modal-content">
+            <!-- Content will be dynamically inserted -->
+        </div>
+    </div>
+
+    <div id="sortModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sort Tasks</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="sort-options">
+                <button class="sort-option" data-sort="dueDate">Due Date</button>
+                <button class="sort-option" data-sort="priority">Priority</button>
+                <button class="sort-option" data-sort="title">Title</button>
+                <button class="sort-option" data-sort="createdAt">Created Date</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="filterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Filter Tasks</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="filter-options">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox">
+                            <input type="checkbox" value="high" checked> High
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" value="medium" checked> Medium
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" value="low" checked> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date Range</label>
+                    <div class="form-row">
+                        <input type="date" id="filterStartDate">
+                        <input type="date" id="filterEndDate">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button id="applyFilters" class="btn primary">Apply Filters</button>
+                    <button id="resetFilters" class="btn secondary">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
